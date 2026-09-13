@@ -1,3 +1,4 @@
+import sqlite3
 import os.path
 import base64
 from email.mime.text import MIMEText
@@ -12,7 +13,19 @@ from dotenv import load_dotenv
 load_dotenv()
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 model = genai.GenerativeModel("gemini-3.6-flash")
+conn = sqlite3.connect("emails.db")
+cursor = conn.cursor()
 
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS emails (
+    id TEXT PRIMARY KEY,
+    sender TEXT,
+    subject TEXT,
+    category TEXT,
+    reply TEXT
+)
+""")
+conn.commit()
 SCOPES = ["https://www.googleapis.com/auth/gmail.modify"]
 creds = None
 
@@ -45,11 +58,8 @@ def send_reply(to_email, subject, message_text):
 
 results = service.users().messages().list(userId="me", maxResults=5).execute()
 messages = results.get("messages", [])
-processed_ids = []
-
-if os.path.exists("processed_ids.txt"):
-    with open("processed_ids.txt", "r") as f:
-        processed_ids = f.read().splitlines()
+cursor.execute("SELECT id FROM emails")
+processed_ids = [row[0] for row in cursor.fetchall()]
 for message in messages:
     msg_id = message["id"]
     if msg_id in processed_ids:
@@ -86,7 +96,11 @@ for message in messages:
         print("AI Reply:")
         print(response.text)
         send_reply(sender_email, subject, response.text)
-        with open("processed_ids.txt", "a") as f:
-            f.write(msg_id + "\n")
+        cursor.execute("""
+        INSERT INTO emails (id, sender, subject, category, reply)
+        VALUES (?, ?, ?, ?, ?)
+        """, (msg_id, sender_email, subject, category, response.text))
+        conn.commit()
     except Exception as e:
         print("AI reply generate nahi ho saka:", e)
+    
