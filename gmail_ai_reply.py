@@ -1,4 +1,5 @@
 import re
+import html
 import time
 import sqlite3
 import os.path
@@ -89,6 +90,14 @@ def clean_reply(text):
     text = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", text)
     text = text.replace("**", "")
    
+   def clean_snippet(text):
+    text = html.unescape(text)
+    signature_words = ["please do not print", "sent from my"]
+    for word in signature_words:
+        position = text.lower().find(word)
+        if position != -1:
+            text = text[:position]
+    return text.strip(" “\"\n")
     return text.strip()
 
 
@@ -169,6 +178,7 @@ for message in messages:
         continue
 
     snippet = msg_data.get("snippet", "")
+    snippet = clean_snippet(snippet)
     category = get_category(subject + " " + snippet)
     customer_name = get_customer_name(sender_email)
 
