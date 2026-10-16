@@ -14,6 +14,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+MODEL_NAME = "gemini-3.5-flash-lite"
 
 
 conn = sqlite3.connect("emails.db")
@@ -87,13 +88,7 @@ def get_customer_name(sender):
 def clean_reply(text):
     text = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", text)
     text = text.replace("**", "")
-    return text.strip()
-def clean_reply(text):
-    print("DEBUG: clean_reply chala")
-    print("DEBUG: pehle:", repr(text[-120:]))
-    text = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", text)
-    text = text.replace("**", "")
-    print("DEBUG: baad mein:", repr(text[-120:]))
+   
     return text.strip()
 
 
@@ -120,9 +115,11 @@ Customer email:
     for attempt in range(3):
         try:
             response = client.models.generate_content(
-                model="gemini-3.8-flash",
+                model=MODEL_NAME,
                 contents=prompt
             )
+        
+            
             return clean_reply(response.text)
         except Exception as e:
             print(f"Koshish {attempt + 1} nakam: {e}")
@@ -183,7 +180,7 @@ for message in messages:
         reply = generate_reply(snippet, customer_name, category)
         print("AI Reply:")
         print(reply)
-        # send_reply(sender_email, subject, reply)
+       # send_reply(sender_email, subject, reply)
         cursor.execute("""
         INSERT INTO emails (id, sender, subject, category, reply)
         VALUES (?, ?, ?, ?, ?)
