@@ -1,6 +1,6 @@
 # AI
 google-genai
-google-generativeai  # app.py abhi purani library use karti hai
+
 
 # Gmail API
 google-api-python-client
