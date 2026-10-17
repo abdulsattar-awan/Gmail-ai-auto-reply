@@ -5,8 +5,7 @@ import os
 import re
 
 app = Flask(__name__)
-
-load_dotenv()
+load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env"))
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 MODEL_NAME = "gemini-3.5-flash-lite"
 
