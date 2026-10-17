@@ -12,3 +12,5 @@ flask
 
 # Settings (.env file)
 python-dotenv
+langchain
+langchain-google-genai 
