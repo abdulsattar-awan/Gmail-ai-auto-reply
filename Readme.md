@@ -23,11 +23,29 @@ An end-to-end automation script that reads customer emails from Gmail, classifie
 - **Self-Reply Protection** — Skips emails sent from the user's own address
 - **Flask API** — `app.py` exposes a `/generate-reply` endpoint (deployed on PythonAnywhere)
 
+## AI Agent Version (`gmail_agent.py`)
+
+An upgraded version built with **LangChain tool calling**. Instead of fixed `if/else` rules, the AI decides by itself which action to take.
+
+**Tools available to the agent:**
+- `get_price` — returns the real price of a plan
+- `check_slot` — checks free booking slots in the database
+- `book_slot` — books a slot (only after checking it is free)
+
+**Example:** A customer emails *"Is Monday free? Please book the earliest slot."* The agent calls `check_slot`, then `book_slot`, and replies with a confirmation, with no human involved.
+
+**Safety features:**
+- **Multi-step agent loop** with a `MAX_STEPS` limit to prevent infinite loops
+- **Persistent bookings** in SQLite (`bookings.db`)
+- **No double booking** — an atomic SQL update (`UPDATE ... WHERE booked = 0` + `rowcount`) makes sure a slot can only be booked once
+- **System prompt rules** — the agent only books when the customer clearly asks, and never guesses prices or slots
+
 ## Tech Stack
 
 - Python 3
 - Google Gmail API (OAuth 2.0)
 - Google Gemini AI (`google-genai` SDK)
+- LangChain (tool calling, agent loop)
 - SQLite
 - Flask
 
