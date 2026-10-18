@@ -89,8 +89,9 @@ def get_customer_name(sender):
 def clean_reply(text):
     text = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", text)
     text = text.replace("**", "")
+    return text.strip()
    
-   def clean_snippet(text):
+def clean_snippet(text):
     text = html.unescape(text)
     signature_words = ["please do not print", "sent from my"]
     for word in signature_words:
@@ -98,7 +99,7 @@ def clean_reply(text):
         if position != -1:
             text = text[:position]
     return text.strip(" “\"\n")
-    return text.strip()
+    
 
 
 
