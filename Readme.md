@@ -6,13 +6,13 @@ An AI email agent that reads customer emails from Gmail, decides what to do with
 
 ```mermaid
 flowchart LR
-    A[cron-job.org<br/>every 30 min] -->|POST + token| B[GitHub Actions]
-    B --> C[gmail_agent.py]
-    C -->|read new emails| D[Gmail API]
-    C -->|think + call tools| E[Gemini AI + LangChain]
-    E --> F[(SQLite bookings.db)]
-    C -->|send reply + label| D
-    B -->|commit bookings.db| G[GitHub repo]
+    A["cron-job.org (every 30 min)"] -->|"POST + token"| B["GitHub Actions"]
+    B --> C["gmail_agent.py"]
+    C -->|"read new emails"| D["Gmail API"]
+    C -->|"think + call tools"| E["Gemini AI + LangChain"]
+    E --> F[("SQLite bookings.db")]
+    C -->|"send reply + label"| D
+    B -->|"commit bookings.db"| G["GitHub repo"]
 ```
 
 1. An external scheduler triggers the GitHub Actions workflow every 30 minutes
